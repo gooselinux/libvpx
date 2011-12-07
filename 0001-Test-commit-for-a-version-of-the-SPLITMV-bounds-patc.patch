@@ -1,0 +1,36 @@
+From 646460472bed9064f4f49f7b9fe5043f22329d97 Mon Sep 17 00:00:00 2001
+From: Timothy B. Terriberry <tterribe@xiph.org>
+Date: Wed, 19 May 2010 20:55:29 -0400
+Subject: [PATCH] Test commit for a version of the SPLITMV bounds patch that doesn't break the
+  current encoder.
+
+---
+ vp8/decoder/decodemv.c |   12 ++++++++++++
+ 1 files changed, 12 insertions(+), 0 deletions(-)
+
+diff --git a/vp8/decoder/decodemv.c b/vp8/decoder/decodemv.c
+index 6035f3e..b42da20 100644
+--- a/vp8/decoder/decodemv.c
++++ b/vp8/decoder/decodemv.c
+@@ -268,6 +268,18 @@ void vp8_decode_mode_mvs(VP8D_COMP *pbi)
+                             break;
+                         }
+ 
++                        /* Clip the MV for this partition so that it does
++                            not extend to far out of image. */
++                        if (mv->col < (xd->mb_to_left_edge - LEFT_TOP_MARGIN))
++                            mv->col = xd->mb_to_left_edge - LEFT_TOP_MARGIN;
++                        else if (mv->col > xd->mb_to_right_edge + RIGHT_BOTTOM_MARGIN + 7)
++                            mv->col = xd->mb_to_right_edge + RIGHT_BOTTOM_MARGIN + 7;
++
++                        if (mv->row < (xd->mb_to_top_edge - LEFT_TOP_MARGIN))
++                            mv->row = xd->mb_to_top_edge - LEFT_TOP_MARGIN;
++                        else if (mv->row > xd->mb_to_bottom_edge + RIGHT_BOTTOM_MARGIN + 7)
++                            mv->row = xd->mb_to_bottom_edge + RIGHT_BOTTOM_MARGIN + 7;
++
+                         /* Fill (uniform) modes, mvs of jth subset.
+                            Must do it here because ensuing subsets can
+                            refer back to us via "left" or "above". */
+-- 
+1.6.4.4
+
