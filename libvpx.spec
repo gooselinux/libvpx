@@ -1,7 +1,7 @@
 Name:			libvpx
 Summary:		VP8 Video Codec SDK
 Version:		0.9.0
-Release:		7%{?dist}
+Release:		8%{?dist}
 License:		BSD
 Group:			System Environment/Libraries
 Source0:		http://webm.googlecode.com/files/%{name}-%{version}.tar.bz2
@@ -13,6 +13,8 @@ Patch0:			libvpx-0.9.0-no-explicit-dep-on-static-lib.patch
 # See: https://groups.google.com/a/webmproject.org/group/codec-devel/browse_frm/thread/ff90bd82d0369b96/79d4c40ea78db91b?tvc=1&q=timothy#79d4c40ea78db91b
 Patch1:			0001-Test-commit-for-a-version-of-the-SPLITMV-bounds-patc.patch
 Patch2:			libvpx-0.9.0-gas.patch
+Patch3:                 CVE-2010-4203-09bcc1f710ea65dc158639479288fb1908ff0c53.patch
+Patch4:                 CVE-2010-4203-10c50af56df5c1f5a33959da01a5bad6048086b5.patch
 URL:			http://www.webmproject.org/tools/vp8-sdk/
 BuildRequires:		doxygen, php-cli
 
@@ -44,6 +46,8 @@ and decoder.
 %patch0 -p1 -b .no-static-lib
 %patch1 -p1 -b .bz599147
 %patch2 -p1 -b .gas
+%patch3 -p1 -b .cve-2010-4203-1
+%patch4 -p1 -b .cve-2010-4203-2
 
 %build
 %ifarch %{ix86}
@@ -62,7 +66,6 @@ and decoder.
 sed -i "s|\"vpx_config.h\"|\"vpx_config.h\" %{optflags} -fPIC|g" libs-%{vpxtarget}.mk
 sed -i "s|\"vpx_config.h\"|\"vpx_config.h\" %{optflags} -fPIC|g" examples-%{vpxtarget}.mk
 sed -i "s|\"vpx_config.h\"|\"vpx_config.h\" %{optflags} -fPIC|g" docs-%{vpxtarget}.mk
-
 make %{?_smp_mflags} verbose=true target=libs
 
 # Really? You couldn't make this a shared library? Ugh.
@@ -146,6 +149,10 @@ rm -rf %{buildroot}
 %{_bindir}/*
 
 %changelog
+* Mon Dec 06 2010 Benjamin Otte <otte@redhat.com> 0.9.0-8
+- Fix CVE-2010-4203
+Resolves: rhbz#652440
+
 * Wed Jun 27 2010 Benjamin Otte <otte@redhat.com> 0.9.0-7
 - Import 0.9.0-6 package from Fedora
 - Add patch porting yasm syntax to gas
